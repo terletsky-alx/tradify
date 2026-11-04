@@ -1,0 +1,15 @@
+services:
+  postgres:
+    image: postgres:17
+    container_name: tradify-db
+    environment:
+      POSTGRES_DB: tradify
+      POSTGRES_USER: tradify
+      POSTGRES_PASSWORD: tradify
+    ports:
+      - "5432:5432"
+    volumes:
+      - tradify-data:/var/lib/postgresql/data
+
+volumes:
+  tradify-data:
