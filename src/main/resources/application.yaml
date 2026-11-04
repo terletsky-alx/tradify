@@ -1,3 +1,31 @@
 spring:
   application:
     name: tradify
+
+#Database
+  datasource:
+    url: jdbc:postgresql://localhost:5432/tradify
+    username: ${DB_USERNAME:tradify}
+    password: ${DB_PASSWORD:tradify}
+
+  #JPA(Hibernate)
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+
+  #Flyway
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+
+  #File upload
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 50MB
+
+
