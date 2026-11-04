@@ -51,6 +51,13 @@ public class AuthService {
         User saved = userRepository.save(user);
         return toResponse(saved);
     }
+    
+    @Transactional(readOnly = true)
+    public UserResponse getCurrentUser(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
+        return toResponse(user);
+    }
 
     private UserResponse toResponse(User user) {
         return new UserResponse(
