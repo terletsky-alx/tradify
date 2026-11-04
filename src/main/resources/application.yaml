@@ -3,7 +3,6 @@ spring:
     name: tradify
 
 #Database
-spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/tradify
     username: ${DB_USERNAME:tradify}
