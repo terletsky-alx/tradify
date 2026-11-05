@@ -24,6 +24,8 @@ public class SecurityConfig {
                         .requestMatchers("/error").permitAll()
                         .requestMatchers("/api/auth/register", "/api/auth/login").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/cities", "/api/categories").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/ads/my").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/ads/{id}").permitAll()
                         .anyRequest().authenticated())
                 .exceptionHandling(e -> e
                         .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
