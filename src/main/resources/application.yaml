@@ -28,4 +28,8 @@ spring:
       max-file-size: 5MB
       max-request-size: 50MB
 
+server:
+  error:
+    include-message: always
+    include-binding-errors: always
 
