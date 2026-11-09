@@ -33,3 +33,6 @@ server:
     include-message: always
     include-binding-errors: always
 
+app:
+  upload-dir: uploads
+
