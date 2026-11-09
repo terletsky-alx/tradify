@@ -16,6 +16,7 @@ spring:
     properties:
       hibernate:
         format_sql: true
+        default_batch_fetch_size: 50
 
   #Flyway
   flyway:
@@ -28,4 +29,19 @@ spring:
       max-file-size: 5MB
       max-request-size: 50MB
 
+
+server:
+  error:
+    include-message: always
+    include-binding-errors: always
+
+
+app:
+  upload-dir: uploads
+
+
+  data:
+    web:
+      pageable:
+        max-page-size: 50
 
