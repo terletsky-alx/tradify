@@ -78,6 +78,20 @@ public class AdService {
         return PageResponse.from(page);
     }
 
+    @Transactional(readOnly = true)
+    public PageResponse<AdCardDto> getSellerAds(Long sellerId, Pageable pageable) {
+        if (!userRepository.existsById(sellerId)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+        }
+        validateSort(pageable);
+
+        Page<AdCardDto> page = adRepository
+                .findBySellerIdAndStatus(sellerId, AdStatus.ACTIVE, pageable)
+                .map(this::toCard);
+
+        return PageResponse.from(page);
+    }
+
     @Transactional
     public AdResponse update(Long id, AdRequest request, String username) {
         Ad ad = findAdWithDetails(id);
