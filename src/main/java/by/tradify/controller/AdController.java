@@ -1,12 +1,17 @@
 package by.tradify.controller;
 
 import by.tradify.dto.request.AdRequest;
+import by.tradify.dto.request.AdSearchFilter;
 import by.tradify.dto.request.AdStatusRequest;
 import by.tradify.dto.response.AdCardDto;
 import by.tradify.dto.response.AdResponse;
+import by.tradify.dto.response.PageResponse;
 import by.tradify.service.AdService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -38,6 +43,13 @@ public class AdController {
     @GetMapping("/{id}")
     public AdResponse getById(@PathVariable Long id) {
         return adService.getById(id);
+    }
+
+    @GetMapping
+    public PageResponse<AdCardDto> search(
+            @ModelAttribute AdSearchFilter filter,
+            @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+        return adService.search(filter, pageable);
     }
 
     @PutMapping("/{id}")

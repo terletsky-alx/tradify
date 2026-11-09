@@ -1,31 +1,36 @@
 package by.tradify.service;
 
 import by.tradify.dto.request.AdRequest;
+import by.tradify.dto.request.AdSearchFilter;
 import by.tradify.dto.request.AdStatusRequest;
-import by.tradify.dto.response.AdCardDto;
-import by.tradify.dto.response.AdResponse;
-import by.tradify.dto.response.ImageDto;
-import by.tradify.dto.response.SellerShortDto;
+import by.tradify.dto.response.*;
 import by.tradify.entity.*;
 import by.tradify.repository.AdImageRepository;
 import by.tradify.repository.AdRepository;
 import by.tradify.repository.CategoryRepository;
 import by.tradify.repository.CityRepository;
 import by.tradify.repository.UserRepository;
+import by.tradify.spec.AdSpecifications;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
 public class AdService {
 
     private static final int MAX_IMAGES = 10;
+    private static final Set<String> SORTABLE_FIELDS = Set.of("createdAt", "price");
 
     private final AdRepository adRepository;
     private final AdImageRepository adImageRepository;
@@ -53,6 +58,24 @@ public class AdService {
         }
         ad.setViewsCount(ad.getViewsCount() + 1);
         return toResponse(ad);
+    }
+
+    @Transactional(readOnly = true)
+    public PageResponse<AdCardDto> search(AdSearchFilter filter, Pageable pageable) {
+        validateSort(pageable);
+
+        if (filter.minPrice() != null && filter.maxPrice() != null
+                && filter.minPrice().compareTo(filter.maxPrice()) > 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "minPrice must not be greater than maxPrice");
+        }
+
+        List<Long> categoryIds = resolveCategoryIds(filter.categoryId());
+
+        Page<AdCardDto> page = adRepository
+                .findAll(AdSpecifications.search(filter, categoryIds), pageable)
+                .map(this::toCard);
+
+        return PageResponse.from(page);
     }
 
     @Transactional
@@ -202,5 +225,28 @@ public class AdService {
                 ad.getCreatedAt(),
                 ad.getImages().isEmpty() ? null : imageUrl(ad.getImages().get(0))
         );
+    }
+
+    private void validateSort(Pageable pageable) {
+        for (Sort.Order order : pageable.getSort()) {
+            if (!SORTABLE_FIELDS.contains(order.getProperty())) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        "Sorting by '" + order.getProperty() + "' is not allowed");
+            }
+        }
+    }
+
+    private List<Long> resolveCategoryIds(Long categoryId) {
+        if (categoryId == null) {
+            return List.of();
+        }
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Category not found"));
+
+        List<Long> ids = new ArrayList<>();
+        ids.add(category.getId());
+        categoryRepository.findByParentId(categoryId)
+                .forEach(child -> ids.add(child.getId()));
+        return ids;
     }
 }
