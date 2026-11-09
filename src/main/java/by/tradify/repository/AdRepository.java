@@ -10,9 +10,9 @@ import java.util.Optional;
 
 public interface AdRepository extends JpaRepository<Ad, Long>, JpaSpecificationExecutor<Ad> {
 
-    @EntityGraph(attributePaths = {"seller", "city", "category"})
+    @EntityGraph(attributePaths = {"seller", "city", "category", "images"})
     Optional<Ad> findWithDetailsById(Long id);
 
-    @EntityGraph(attributePaths = {"city", "category"})
+    @EntityGraph(attributePaths = {"city", "category", "images"})
     List<Ad> findBySellerIdOrderByCreatedAtDesc(Long sellerId);
 }

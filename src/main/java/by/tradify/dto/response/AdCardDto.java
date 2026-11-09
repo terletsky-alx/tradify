@@ -12,6 +12,7 @@ public record AdCardDto(
         AdStatus status,
         String cityName,
         String categoryName,
-        Instant createdAt
+        Instant createdAt,
+        String coverUrl
 ) {
 }

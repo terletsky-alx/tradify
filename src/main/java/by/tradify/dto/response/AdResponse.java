@@ -5,6 +5,7 @@ import by.tradify.entity.AdStatus;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.List;
 
 public record AdResponse(
         Long id,
@@ -20,6 +21,7 @@ public record AdResponse(
         SellerShortDto seller,
         int viewsCount,
         Instant createdAt,
-        Instant updatedAt
+        Instant updatedAt,
+        List<ImageDto> images
 ) {
 }
