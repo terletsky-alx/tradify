@@ -1,6 +1,7 @@
 package by.tradify.repository;
 
 import by.tradify.entity.Ad;
+import by.tradify.entity.AdStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -18,6 +19,11 @@ public interface AdRepository extends JpaRepository<Ad, Long>, JpaSpecificationE
 
     @EntityGraph(attributePaths = {"city", "category", "images"})
     List<Ad> findBySellerIdOrderByCreatedAtDesc(Long sellerId);
+
+    @EntityGraph(attributePaths = {"city", "category"})
+    Page<Ad> findBySellerIdAndStatus(Long sellerId, AdStatus status, Pageable pageable);
+
+    long countBySellerIdAndStatus(Long sellerId, AdStatus status);
 
     @Override
     @EntityGraph(attributePaths = {"city", "category"})
