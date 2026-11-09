@@ -60,16 +60,6 @@ public class AuthService {
     }
 
     private UserResponse toResponse(User user) {
-        return new UserResponse(
-                user.getId(),
-                user.getUsername(),
-                user.getEmail(),
-                user.getDisplayName(),
-                user.getPhone(),
-                user.getCity() != null ? user.getCity().getId() : null,
-                user.getCity() != null ? user.getCity().getName() : null,
-                user.getAbout(),
-                user.getCreatedAt()
-        );
+        return UserResponse.from(user);
     }
 }
