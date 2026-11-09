@@ -8,9 +8,11 @@ import by.tradify.service.AdService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -57,5 +59,19 @@ public class AdController {
     public void delete(@PathVariable Long id,
                        @AuthenticationPrincipal UserDetails principal) {
         adService.delete(id, principal.getUsername());
+    }
+
+    @PostMapping(value = "/{id}/images", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public AdResponse uploadImages(@PathVariable Long id,
+                                   @RequestParam("files") List<MultipartFile> files,
+                                   @AuthenticationPrincipal UserDetails principal) {
+        return adService.addImages(id, files, principal.getUsername());
+    }
+
+    @DeleteMapping("/{id}/images/{imageId}")
+    public AdResponse deleteImage(@PathVariable Long id,
+                                  @PathVariable Long imageId,
+                                  @AuthenticationPrincipal UserDetails principal) {
+        return adService.deleteImage(id, imageId, principal.getUsername());
     }
 }

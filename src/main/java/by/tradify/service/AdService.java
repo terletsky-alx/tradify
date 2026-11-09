@@ -4,8 +4,10 @@ import by.tradify.dto.request.AdRequest;
 import by.tradify.dto.request.AdStatusRequest;
 import by.tradify.dto.response.AdCardDto;
 import by.tradify.dto.response.AdResponse;
+import by.tradify.dto.response.ImageDto;
 import by.tradify.dto.response.SellerShortDto;
 import by.tradify.entity.*;
+import by.tradify.repository.AdImageRepository;
 import by.tradify.repository.AdRepository;
 import by.tradify.repository.CategoryRepository;
 import by.tradify.repository.CityRepository;
@@ -14,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
@@ -22,10 +25,14 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AdService {
 
+    private static final int MAX_IMAGES = 10;
+
     private final AdRepository adRepository;
+    private final AdImageRepository adImageRepository;
     private final UserRepository userRepository;
     private final CityRepository cityRepository;
     private final CategoryRepository categoryRepository;
+    private final StorageService storageService;
 
     @Transactional
     public AdResponse create(AdRequest request, String username) {
@@ -78,7 +85,55 @@ public class AdService {
                 .map(this::toCard)
                 .toList();
     }
-    
+
+    // images
+
+    @Transactional
+    public AdResponse addImages(Long id, List<MultipartFile> files, String username) {
+        Ad ad = findAdWithDetails(id);
+        checkOwner(ad, username);
+
+        if (files == null || files.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No files provided");
+        }
+        if (ad.getImages().size() + files.size() > MAX_IMAGES) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "An ad can have at most " + MAX_IMAGES + " images");
+        }
+
+        for (MultipartFile file : files) {
+            String fileName = storageService.save(file);
+
+            AdImage image = new AdImage();
+            image.setAd(ad);
+            image.setFileName(fileName);
+            image.setPosition(ad.getImages().size());
+
+            ad.getImages().add(adImageRepository.save(image));
+        }
+        return toResponse(ad);
+    }
+
+    @Transactional
+    public AdResponse deleteImage(Long adId, Long imageId, String username) {
+        Ad ad = findAdWithDetails(adId);
+        checkOwner(ad, username);
+
+        AdImage image = ad.getImages().stream()
+                .filter(img -> img.getId().equals(imageId))
+                .findFirst()
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Image not found"));
+
+        ad.getImages().remove(image);
+        storageService.delete(image.getFileName());
+
+        for (int i = 0; i < ad.getImages().size(); i++) {
+            ad.getImages().get(i).setPosition(i);
+        }
+        return toResponse(ad);
+    }
+
+    // helpers
 
     private void applyRequest(Ad ad, AdRequest request) {
         City city = cityRepository.findById(request.cityId())
@@ -110,6 +165,10 @@ public class AdService {
         }
     }
 
+    private String imageUrl(AdImage image) {
+        return "/images/" + image.getFileName();
+    }
+
     private AdResponse toResponse(Ad ad) {
         return new AdResponse(
                 ad.getId(),
@@ -125,7 +184,10 @@ public class AdService {
                 new SellerShortDto(ad.getSeller().getId(), ad.getSeller().getDisplayName()),
                 ad.getViewsCount(),
                 ad.getCreatedAt(),
-                ad.getUpdatedAt()
+                ad.getUpdatedAt(),
+                ad.getImages().stream()
+                        .map(img -> new ImageDto(img.getId(), imageUrl(img)))
+                        .toList()
         );
     }
 
@@ -137,7 +199,8 @@ public class AdService {
                 ad.getStatus(),
                 ad.getCity().getName(),
                 ad.getCategory().getName(),
-                ad.getCreatedAt()
+                ad.getCreatedAt(),
+                ad.getImages().isEmpty() ? null : imageUrl(ad.getImages().get(0))
         );
     }
 }
