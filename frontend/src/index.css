@@ -219,3 +219,37 @@ main { padding: 24px 0 48px; }
 .profile-info h1 { margin: 0 0 8px; font-size: 24px; }
 .profile-about { white-space: pre-wrap; line-height: 1.6; margin: 12px 0 0; }
 .section-title { font-size: 20px; margin: 24px 0 12px; }
+
+
+/* ---------- ad form ---------- */
+.form-card { max-width: 760px; margin: 0 auto; }
+.form-card h1 { margin: 0 0 16px; font-size: 24px; }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 16px; }
+.form-grid .full { grid-column: 1 / -1; }
+.image-list { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+.image-item {
+  position: relative;
+  width: 120px;
+  aspect-ratio: 4 / 3;
+  border-radius: 8px;
+  background: #e5e7eb center / cover no-repeat;
+}
+.image-remove {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(0, 0, 0, .6);
+  color: #fff;
+  cursor: pointer;
+  line-height: 24px;
+  padding: 0;
+}
+.image-item .badge { position: absolute; left: 4px; bottom: 4px; }
+
+@media (max-width: 600px) {
+  .form-grid { grid-template-columns: 1fr; }
+}
