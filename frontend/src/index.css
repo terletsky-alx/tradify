@@ -211,3 +211,11 @@ main { padding: 24px 0 48px; }
 @media (max-width: 900px) {
   .ad-layout { grid-template-columns: 1fr; }
 }
+
+/* ---------- user page ---------- */
+.profile-header { display: flex; gap: 20px; align-items: flex-start; flex-wrap: wrap; }
+.avatar-lg { width: 96px; height: 96px; font-size: 36px; }
+.profile-info { flex: 1; min-width: 220px; }
+.profile-info h1 { margin: 0 0 8px; font-size: 24px; }
+.profile-about { white-space: pre-wrap; line-height: 1.6; margin: 12px 0 0; }
+.section-title { font-size: 20px; margin: 24px 0 12px; }
