@@ -2,8 +2,8 @@ import { Link } from 'react-router';
 import { formatDate, formatPrice, STATUS_LABELS } from '../utils/format';
 
 export default function AdCard({ ad }) {
-    return (
-        <Link className="card" to={`/ads/${ad.id}`}>
+    const content = (
+        <>
             {ad.coverUrl ? (
                 <div className="card-img" style={{ backgroundImage: `url('${ad.coverUrl}')` }} />
             ) : (
@@ -17,6 +17,12 @@ export default function AdCard({ ad }) {
                     <span className="badge">{STATUS_LABELS[ad.status]}</span>
                 )}
             </div>
-        </Link>
+        </>
     );
+
+    if (ad.status === 'ARCHIVED') {
+        return <div className="card">{content}</div>;
+    }
+
+    return <Link className="card" to={`/ads/${ad.id}`}>{content}</Link>;
 }
